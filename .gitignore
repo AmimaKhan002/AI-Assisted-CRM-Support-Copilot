@@ -1,6 +1,7 @@
 # OS
 .DS_Store
 Thumbs.db
+*~
 
 # Editor
 .vscode/
@@ -8,18 +9,32 @@ Thumbs.db
 *.swp
 *.swo
 
-# Env secrets (never commit real keys)
+# Env & secrets — never commit real keys or tokens
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
+!.env.local.example
+*.pem
+*.key
+credentials.json
+.secrets/
+auth.json
 
 # Logs
 *.log
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
 
-# Dependencies / build (also covered under crm-copilot/.gitignore)
+# Dependencies / build
 node_modules/
 .next/
 out/
+dist/
+build/
 .vercel/
 *.tsbuildinfo
+
+# Local demo / recording artifacts (optional keep out of git)
+*.gif.tmp
