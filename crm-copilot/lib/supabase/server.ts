@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import ws from "ws";
 
 function getSupabaseUrl(): string {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -25,6 +26,7 @@ export function createServerAnonClient(): SupabaseClient {
       persistSession: false,
       autoRefreshToken: false,
     },
+    realtime: { transport: ws },
   });
 }
 
@@ -45,5 +47,6 @@ export function createServiceRoleClient(): SupabaseClient {
       persistSession: false,
       autoRefreshToken: false,
     },
+    realtime: { transport: ws },
   });
 }
