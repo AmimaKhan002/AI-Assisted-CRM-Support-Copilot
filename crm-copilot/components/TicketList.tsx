@@ -1,14 +1,15 @@
+"use client";
+
+import Link from "next/link";
 import { StatusBadge } from "@/components/StatusBadge";
 import type { Ticket } from "@/lib/types/ticket";
 
 export function TicketList({
   tickets,
   selectedId,
-  onSelect,
 }: {
   tickets: Ticket[];
-  selectedId: string | null;
-  onSelect: (id: string) => void;
+  selectedId?: string | null;
 }) {
   if (tickets.length === 0) {
     return (
@@ -29,17 +30,16 @@ export function TicketList({
             className="animate-fade-up border-b border-[var(--border)]"
             style={{ animationDelay: `${Math.min(index, 12) * 28}ms` }}
           >
-            <button
-              type="button"
-              onClick={() => onSelect(ticket.id)}
-              className={`relative w-full px-4 py-3.5 text-left transition-colors ${
+            <Link
+              href={`/tickets/${ticket.id}`}
+              className={`relative block w-full px-3 py-3.5 text-left transition-colors sm:px-4 ${
                 selected ? "bg-accent-soft" : "hover:bg-panel-muted"
               }`}
             >
               {selected ? (
                 <span className="absolute inset-y-0 left-0 w-[3px] bg-accent" />
               ) : null}
-              <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start justify-between gap-2 sm:gap-3">
                 <span className="line-clamp-2 text-[13px] font-bold leading-snug text-foreground">
                   {ticket.subject}
                 </span>
@@ -56,7 +56,7 @@ export function TicketList({
                   minute: "2-digit",
                 })}
               </p>
-            </button>
+            </Link>
           </li>
         );
       })}

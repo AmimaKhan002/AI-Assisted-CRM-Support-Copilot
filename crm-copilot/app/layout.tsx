@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Instrument_Serif, JetBrains_Mono, Manrope } from "next/font/google";
 import "./globals.css";
 
@@ -23,6 +23,12 @@ const mono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "CRM Support Copilot",
   description: "AI-assisted support ticket dashboard for agents",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#0a0f1a",
 };
 
 export default function RootLayout({

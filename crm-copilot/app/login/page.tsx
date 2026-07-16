@@ -99,7 +99,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="login-shell flex flex-1 items-center justify-center px-4 py-8 md:py-12">
+    <div className="login-shell flex flex-1 items-center justify-center px-3 py-6 sm:px-4 sm:py-8 md:py-12">
       <div className="auth-card animate-fade-up grid w-full max-w-5xl overflow-hidden rounded-sm border border-[var(--border)] md:grid-cols-[1.1fr_1fr]">
         {/* Brand panel */}
         <aside className="relative hidden flex-col justify-between overflow-hidden border-r border-[var(--border)] bg-[var(--navy)] p-10 text-white md:flex lg:p-12">
@@ -124,7 +124,7 @@ export default function LoginPage() {
             </div>
 
             <h1
-              className="mt-12 max-w-md text-[2.35rem] leading-[1.15] text-white"
+              className="mt-10 max-w-md text-3xl leading-[1.15] text-white lg:mt-12 lg:text-[2.35rem]"
               style={{ fontFamily: "var(--font-display), serif" }}
             >
               Professional support, powered by grounded AI.
@@ -154,7 +154,7 @@ export default function LoginPage() {
         </aside>
 
         {/* Form panel */}
-        <section className="flex flex-col justify-center bg-panel p-7 sm:p-10 lg:p-12">
+        <section className="flex flex-col justify-center bg-panel p-5 sm:p-8 md:p-10 lg:p-12">
           <div className="mb-6 md:hidden">
             <div className="flex h-10 w-10 items-center justify-center bg-accent text-sm font-extrabold text-white">
               CS
