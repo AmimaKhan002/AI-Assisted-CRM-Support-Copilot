@@ -1,7 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { KbSnippet } from "@/lib/prompts/summarize";
+import {
+  embedText,
+  hasEmbeddingsProvider,
+  toPgvectorLiteral,
+} from "@/lib/ai/embeddings";
 
-/** Tiny words that would match almost every article — ignore them. */
 const STOP_WORDS = new Set([
   "a",
   "an",
@@ -64,7 +68,6 @@ function scoreArticle(tokens: string[], article: KbRow): number {
 
   for (const token of tokens) {
     if (haystack.includes(token)) {
-      // Title matches count more — they are stronger signals.
       if (article.title.toLowerCase().includes(token)) {
         score += 3;
       } else {
@@ -76,14 +79,8 @@ function scoreArticle(tokens: string[], article: KbRow): number {
   return score;
 }
 
-/**
- * Find the most relevant KB articles for a ticket's text.
- *
- * @param supabase - Server Supabase client (anon or service_role)
- * @param ticketText - Usually `subject + " " + body`
- * @param limit - Max articles to return (default 3)
- */
-export async function searchKbArticles(
+/** Keyword search (v1) — no API keys required. */
+export async function searchKbArticlesKeyword(
   supabase: SupabaseClient,
   ticketText: string,
   limit = 3,
@@ -93,35 +90,77 @@ export async function searchKbArticles(
     .select("id, title, content");
 
   if (error) {
-    throw new Error(`KB search failed: ${error.message}`);
+    throw new Error(`KB keyword search failed: ${error.message}`);
   }
 
   const articles = (data ?? []) as KbRow[];
-  if (articles.length === 0) {
-    return [];
-  }
+  if (articles.length === 0) return [];
 
   const tokens = tokenize(ticketText);
   if (tokens.length === 0) {
-    // No useful words — return a few articles as weak fallback.
     return articles.slice(0, limit).map(({ title, content }) => ({
       title,
       content,
     }));
   }
 
-  const ranked = articles
-    .map((article) => ({
-      article,
-      score: scoreArticle(tokens, article),
-    }))
+  return articles
+    .map((article) => ({ article, score: scoreArticle(tokens, article) }))
     .filter((row) => row.score > 0)
     .sort((a, b) => b.score - a.score)
-    .slice(0, limit);
+    .slice(0, limit)
+    .map(({ article }) => ({
+      title: article.title,
+      content: article.content,
+    }));
+}
 
-  // If nothing scored > 0, return empty — prompt will say "no KB context".
-  return ranked.map(({ article }) => ({
-    title: article.title,
-    content: article.content,
-  }));
+/** Semantic search (v2) — embed query, then pgvector similarity. */
+export async function searchKbArticlesSemantic(
+  supabase: SupabaseClient,
+  ticketText: string,
+  limit = 3,
+): Promise<KbSnippet[]> {
+  const embedding = await embedText(ticketText);
+  const { data, error } = await supabase.rpc("match_kb_articles", {
+    query_embedding: toPgvectorLiteral(embedding),
+    match_count: limit,
+  });
+
+  if (error) {
+    throw new Error(`KB semantic search failed: ${error.message}`);
+  }
+
+  const rows = (data ?? []) as Array<{
+    title: string;
+    content: string;
+    similarity?: number;
+  }>;
+
+  return rows.map(({ title, content }) => ({ title, content }));
+}
+export async function searchKbArticles(
+  supabase: SupabaseClient,
+  ticketText: string,
+  limit = 3,
+): Promise<KbSnippet[]> {
+  if (hasEmbeddingsProvider()) {
+    try {
+      const semantic = await searchKbArticlesSemantic(
+        supabase,
+        ticketText,
+        limit,
+      );
+      if (semantic.length > 0) {
+        return semantic;
+      }
+    } catch (err) {
+      console.warn(
+        "[kb/search] Semantic search unavailable, falling back to keywords:",
+        err instanceof Error ? err.message : err,
+      );
+    }
+  }
+
+  return searchKbArticlesKeyword(supabase, ticketText, limit);
 }

@@ -87,10 +87,5 @@ begin
 end $$;
 
 -- ---------------------------------------------------------------------------
--- STRETCH (do NOT run yet — Step 15 / RAG upgrade):
---   create extension if not exists vector;
---   alter table public.kb_articles
---     add column if not exists embedding vector(1536);
---   create index on public.kb_articles
---     using ivfflat (embedding vector_cosine_ops);
+-- STRETCH RAG: see supabase/rag.sql (pgvector + match_kb_articles)
 -- ---------------------------------------------------------------------------
