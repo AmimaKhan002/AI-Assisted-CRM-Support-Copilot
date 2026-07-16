@@ -71,7 +71,7 @@ async function embedWithOpenAI(text: string, apiKey: string): Promise<number[]> 
 }
 
 async function embedWithGemini(text: string, apiKey: string): Promise<number[]> {
-  const model = process.env.GEMINI_EMBEDDING_MODEL ?? "text-embedding-004";
+  const model = process.env.GEMINI_EMBEDDING_MODEL ?? "gemini-embedding-001";
   const url =
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:embedContent` +
     `?key=${apiKey}`;
@@ -81,6 +81,7 @@ async function embedWithGemini(text: string, apiKey: string): Promise<number[]> 
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       content: { parts: [{ text }] },
+      outputDimensionality: EMBEDDING_DIMENSIONS,
     }),
   });
 
