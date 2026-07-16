@@ -4,40 +4,73 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createBrowserClient } from "@/lib/supabase/client";
 
+function friendlyAuthError(message: string): string {
+  const lower = message.toLowerCase();
+  if (lower.includes("rate limit") || lower.includes("over_email")) {
+    return "Too many signup emails were sent. Wait a minute, or sign in if the account already exists. Tip: in Supabase → Authentication → Providers → Email, turn off “Confirm email” for local demos.";
+  }
+  if (lower.includes("already registered") || lower.includes("already been registered")) {
+    return "That email is already registered. Switch to Sign in.";
+  }
+  if (lower.includes("invalid login") || lower.includes("invalid credentials")) {
+    return "Wrong email or password. Try again, or create an account first.";
+  }
+  if (lower.includes("email") && lower.includes("invalid")) {
+    return "Supabase rejected this email (often due to Confirm email / SMTP settings). Use Sign in if the account exists, or disable Confirm email in the Supabase dashboard for local testing.";
+  }
+  return message;
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     setError(null);
+    setInfo(null);
     setLoading(true);
 
     const supabase = createBrowserClient();
+    const trimmedEmail = email.trim().toLowerCase();
 
     try {
       if (mode === "signin") {
         const { error: signInError } = await supabase.auth.signInWithPassword({
-          email,
+          email: trimmedEmail,
           password,
         });
         if (signInError) throw signInError;
-      } else {
-        const { error: signUpError } = await supabase.auth.signUp({
-          email,
-          password,
-        });
-        if (signUpError) throw signUpError;
+        router.replace("/");
+        router.refresh();
+        return;
+      }
+
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email: trimmedEmail,
+        password,
+      });
+      if (signUpError) throw signUpError;
+
+      // If email confirmation is required, session stays null until confirmed.
+      if (!data.session) {
+        setInfo(
+          "Account created. If email confirmation is enabled in Supabase, confirm via email first — or disable Confirm email in Authentication → Providers → Email, then sign in.",
+        );
+        setMode("signin");
+        return;
       }
 
       router.replace("/");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Authentication failed");
+      const raw = err instanceof Error ? err.message : "Authentication failed";
+      setError(friendlyAuthError(raw));
     } finally {
       setLoading(false);
     }
@@ -75,7 +108,9 @@ export default function LoginPage() {
             {mode === "signin" ? "Agent sign in" : "Create agent account"}
           </h2>
           <p className="mt-2 text-sm text-muted">
-            Sign in with your support agent credentials to open the workspace.
+            {mode === "signin"
+              ? "Enter your email and password to open the agent workspace."
+              : "Create a new agent account. Password must be at least 6 characters."}
           </p>
 
           <form onSubmit={onSubmit} className="mt-8 space-y-4">
@@ -115,6 +150,15 @@ export default function LoginPage() {
               </p>
             ) : null}
 
+            {info ? (
+              <p
+                className="border border-accent/20 bg-accent-soft/50 px-3 py-2 text-sm text-foreground"
+                role="status"
+              >
+                {info}
+              </p>
+            ) : null}
+
             <button
               type="submit"
               disabled={loading}
@@ -124,7 +168,7 @@ export default function LoginPage() {
                 ? "Please wait…"
                 : mode === "signin"
                   ? "Sign in"
-                  : "Sign up"}
+                  : "Create account"}
             </button>
           </form>
 
@@ -134,12 +178,24 @@ export default function LoginPage() {
             onClick={() => {
               setMode(mode === "signin" ? "signup" : "signin");
               setError(null);
+              setInfo(null);
             }}
           >
             {mode === "signin"
               ? "Need an account? Sign up"
               : "Already have an account? Sign in"}
           </button>
+
+          <p className="mt-6 border-t border-[var(--border)] pt-4 text-xs leading-relaxed text-muted">
+            Demo accounts ready now:{" "}
+            <span className="font-mono text-foreground">admin@gmail.com</span>{" "}
+            or{" "}
+            <span className="font-mono text-foreground">
+              agent@crm-copilot.local
+            </span>{" "}
+            — password{" "}
+            <span className="font-mono text-foreground">AgentDemo123!</span>
+          </p>
         </div>
       </div>
     </div>
