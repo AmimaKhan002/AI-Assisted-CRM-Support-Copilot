@@ -43,8 +43,8 @@ export function AuthGate({ children }: { children: ReactNode }) {
   if (!ready) {
     return (
       <div className="app-shell flex flex-1 items-center justify-center">
-        <div className="border border-[var(--border)] bg-panel px-6 py-4 text-sm text-muted shadow-sm">
-          Checking session…
+        <div className="border border-[var(--border)] bg-white px-6 py-4 text-sm font-medium text-muted shadow-[var(--shadow-sm)]">
+          Checking secure session…
         </div>
       </div>
     );

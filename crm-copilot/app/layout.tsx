@@ -1,11 +1,17 @@
 import type { Metadata } from "next";
-import { JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import { Instrument_Serif, JetBrains_Mono, Manrope } from "next/font/google";
 import "./globals.css";
 
-const ui = Plus_Jakarta_Sans({
+const ui = Manrope({
   variable: "--font-ui",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700", "800"],
+});
+
+const display = Instrument_Serif({
+  variable: "--font-display",
+  subsets: ["latin"],
+  weight: ["400"],
 });
 
 const mono = JetBrains_Mono({
@@ -25,7 +31,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${ui.variable} ${mono.variable} h-full antialiased`}>
+    <html
+      lang="en"
+      className={`${ui.variable} ${display.variable} ${mono.variable} h-full antialiased`}
+    >
       <body className="flex h-full min-h-full flex-col font-sans text-foreground">
         {children}
       </body>

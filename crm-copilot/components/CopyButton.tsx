@@ -23,7 +23,7 @@ export function CopyButton({
       type="button"
       onClick={() => void onCopy()}
       disabled={!text.trim()}
-      className="border border-[var(--border)] bg-white px-3.5 py-2 text-sm font-medium text-foreground transition-colors hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
+      className="btn-secondary px-3.5 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-40"
     >
       {copied ? "Copied" : label}
     </button>
