@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "seed": "tsx scripts/seed.ts",
-    "embed-kb": "tsx scripts/embed-kb.ts"
+    "embed-kb": "tsx scripts/embed-kb.ts",
+    "promote-admin": "tsx scripts/promote-admin.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.109.0",

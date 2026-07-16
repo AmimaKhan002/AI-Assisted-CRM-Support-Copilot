@@ -1,7 +1,10 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createBrowserClient } from "@/lib/supabase/client";
+import { getProfile, isAdmin } from "@/lib/auth/roles";
 import type { RealtimeStatus } from "@/lib/hooks/useTicketsRealtime";
 
 export function AppHeader({
@@ -14,6 +17,18 @@ export function AppHeader({
   title?: string;
 }) {
   const router = useRouter();
+  const [admin, setAdmin] = useState(false);
+
+  useEffect(() => {
+    async function loadRole() {
+      const supabase = createBrowserClient();
+      const { data } = await supabase.auth.getUser();
+      if (!data.user) return;
+      const profile = await getProfile(supabase, data.user.id);
+      setAdmin(isAdmin(profile));
+    }
+    void loadRole();
+  }, []);
 
   async function signOut() {
     const supabase = createBrowserClient();
@@ -24,7 +39,7 @@ export function AppHeader({
   return (
     <header className="shrink-0 border-b border-[var(--border)] bg-panel/90 px-3 py-3 backdrop-blur-md sm:px-4 md:px-6">
       <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-2 sm:gap-3">
-        <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+        <Link href="/" className="flex min-w-0 items-center gap-2.5 sm:gap-3">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center bg-accent text-xs font-extrabold text-white sm:h-10 sm:w-10 sm:text-sm">
             CS
           </div>
@@ -36,7 +51,7 @@ export function AppHeader({
               {title}
             </h1>
           </div>
-        </div>
+        </Link>
 
         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
           {counts ? (
@@ -78,6 +93,15 @@ export function AppHeader({
                   ? "Connecting"
                   : "Offline"}
             </span>
+          ) : null}
+
+          {admin ? (
+            <Link
+              href="/admin/kb"
+              className="btn-secondary px-2.5 py-1.5 text-xs sm:px-3 sm:text-sm"
+            >
+              KB Admin
+            </Link>
           ) : null}
 
           <button
