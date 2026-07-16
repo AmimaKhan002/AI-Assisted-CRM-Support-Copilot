@@ -3,8 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { StatusBadge } from "@/components/StatusBadge";
+import { StatusSelect } from "@/components/StatusSelect";
 import { CopyButton } from "@/components/CopyButton";
-import type { Ticket } from "@/lib/types/ticket";
+import type { Ticket, TicketStatus } from "@/lib/types/ticket";
 
 export function TicketDetail({
   ticket,
@@ -46,6 +47,7 @@ export function TicketDetail({
         error?: string;
         summary?: string;
         suggestedReply?: string;
+        status?: TicketStatus;
       };
 
       if (!res.ok) {
@@ -56,6 +58,7 @@ export function TicketDetail({
         ...ticket,
         summary: data.summary ?? ticket.summary,
         suggested_reply: data.suggestedReply ?? ticket.suggested_reply,
+        status: data.status ?? ticket.status,
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Regenerate failed");
@@ -94,6 +97,14 @@ export function TicketDetail({
                 timeStyle: "short",
               })}
             </p>
+
+            <div className="mt-4">
+              <StatusSelect
+                ticketId={ticket.id}
+                status={ticket.status}
+                onChange={(status) => onUpdated({ ...ticket, status })}
+              />
+            </div>
           </div>
 
           <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap">
