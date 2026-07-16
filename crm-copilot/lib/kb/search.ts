@@ -1,31 +1,3 @@
-/**
- * Knowledge base search (v1 — keyword match)
- * -----------------------------------------------------------------------------
- * PURPOSE:
- *   Find KB articles that seem related to a ticket so the LLM can draft a
- *   grounded reply (not pure guesswork).
- *
- * HOW IT WORKS (v1):
- *   1. Load all kb_articles from Supabase
- *   2. Split the ticket subject+body into "tokens" (words)
- *   3. Score each article by how many tokens appear in its title/content
- *   4. Return the top N matches
- *
- * HOW IT CONNECTS:
- *   /api/summarize (later)
- *        │
- *        ├─ searchKbArticles(ticketText)  ← YOU ARE HERE
- *        │         │
- *        │         ▼
- *        │   KbSnippet[] → buildSummarizeUserPrompt()
- *        │
- *        └─ lib/ai/*.ts → LLM
- *
- * STRETCH (Step 15):
- *   Replace this with OpenAI embeddings + pgvector similarity search (true RAG).
- *   Same function name / return shape = swap later without rewriting the API.
- */
-
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { KbSnippet } from "@/lib/prompts/summarize";
 
