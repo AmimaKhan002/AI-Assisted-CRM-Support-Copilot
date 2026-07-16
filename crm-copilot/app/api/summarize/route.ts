@@ -1,37 +1,8 @@
-/**
- * POST /api/summarize
- * -----------------------------------------------------------------------------
- * PURPOSE:
- *   Orchestrate one "AI assist" job for a ticket:
- *   1. Load the ticket from Supabase
- *   2. Find related KB articles (keyword search)
- *   3. Call Groq to summarize + draft a reply
- *   4. Save summary + suggested_reply back onto the ticket
- *
- * HOW IT CONNECTS:
- *   TicketDetail "Regenerate" (later UI)
- *        │  POST { ticketId }
- *        ▼
- *   app/api/summarize/route.ts  ← YOU ARE HERE
- *        │
- *        ├─ createServiceRoleClient()     → fetch + update ticket
- *        ├─ searchKbArticles()            → KB context
- *        └─ summarizeTicket()             → Groq
- *                │
- *                ▼
- *        UPDATE tickets SET summary, suggested_reply
- *                │
- *                ▼
- *        Supabase Realtime → dashboard refreshes (later step)
- *
- * BODY:    { "ticketId": "<uuid>" }
- * RETURNS: { summary, suggestedReply, provider, ticketId }
- */
-
 import { NextResponse } from "next/server";
 import { createServiceRoleClient } from "@/lib/supabase/server";
 import { searchKbArticles } from "@/lib/kb/search";
 import { summarizeTicket } from "@/lib/ai";
+import type { TicketStatus } from "@/lib/types/ticket";
 
 type SummarizeBody = {
   ticketId?: string;
@@ -54,7 +25,7 @@ export async function POST(request: Request) {
     // 1) Load ticket
     const { data: ticket, error: ticketError } = await supabase
       .from("tickets")
-      .select("id, subject, body")
+      .select("id, subject, body, status")
       .eq("id", ticketId)
       .maybeSingle();
 
@@ -86,12 +57,19 @@ export async function POST(request: Request) {
       kbArticles,
     });
 
-    // 4) Persist AI output
+    // Auto: first regenerate moves open → in_progress (don't override resolved)
+    const nextStatus: TicketStatus =
+      ticket.status === "open"
+        ? "in_progress"
+        : (ticket.status as TicketStatus);
+
+    // 4) Persist AI output (+ status if needed)
     const { error: updateError } = await supabase
       .from("tickets")
       .update({
         summary: result.summary,
         suggested_reply: result.suggestedReply,
+        status: nextStatus,
       })
       .eq("id", ticketId);
 
@@ -106,6 +84,7 @@ export async function POST(request: Request) {
       ticketId,
       summary: result.summary,
       suggestedReply: result.suggestedReply,
+      status: nextStatus,
       provider: result.provider,
       kbMatched: kbArticles.map((a) => a.title),
     });
