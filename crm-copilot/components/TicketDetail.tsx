@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 import { StatusBadge } from "@/components/StatusBadge";
 import { CopyButton } from "@/components/CopyButton";
@@ -16,8 +17,12 @@ export function TicketDetail({
 
   if (!ticket) {
     return (
-      <div className="flex h-full items-center justify-center p-8 text-sm text-zinc-500">
-        Select a ticket to view details and AI suggestions.
+      <div className="flex h-full flex-col items-center justify-center gap-2 p-10 text-center">
+        <p className="text-sm font-medium text-foreground">No ticket selected</p>
+        <p className="max-w-xs text-sm text-muted">
+          Choose a conversation from the queue to review the message and generate
+          an AI-assisted reply.
+        </p>
       </div>
     );
   }
@@ -57,73 +62,97 @@ export function TicketDetail({
   }
 
   return (
-    <div className="flex h-full flex-col overflow-y-auto p-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0 flex-1">
-          <div className="mb-2">
-            <StatusBadge status={ticket.status} />
+    <div className="flex h-full flex-col overflow-y-auto">
+      <div className="shrink-0 border-b border-[var(--border)] bg-panel px-6 py-5 md:px-8">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="min-w-0 flex-1">
+            <div className="mb-3 flex flex-wrap items-center gap-2">
+              <StatusBadge status={ticket.status} />
+              <span className="font-mono text-[11px] text-muted">
+                {ticket.id.slice(0, 8)}
+              </span>
+            </div>
+            <h2 className="text-xl font-semibold tracking-tight text-foreground md:text-2xl">
+              {ticket.subject}
+            </h2>
+            <p className="mt-1.5 text-xs text-muted">
+              Received{" "}
+              {new Date(ticket.created_at).toLocaleString(undefined, {
+                dateStyle: "medium",
+                timeStyle: "short",
+              })}
+            </p>
           </div>
-          <h2 className="text-xl font-semibold text-zinc-900">
-            {ticket.subject}
-          </h2>
-          <p className="mt-1 text-xs text-zinc-500">
-            {new Date(ticket.created_at).toLocaleString()}
-          </p>
+
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => void regenerate()}
+              disabled={loading}
+              className="bg-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-accent-hover disabled:opacity-60"
+            >
+              {loading ? "Generating…" : "Regenerate summary"}
+            </button>
+            <CopyButton text={ticket.suggested_reply ?? ""} />
+          </div>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => void regenerate()}
-            disabled={loading}
-            className="bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-60"
+        {error ? (
+          <p
+            className="mt-4 border border-danger/20 bg-red-50 px-3 py-2 text-sm text-danger"
+            role="alert"
           >
-            {loading ? "Generating…" : "Regenerate summary"}
-          </button>
-          <CopyButton text={ticket.suggested_reply ?? ""} />
-        </div>
+            {error}
+          </p>
+        ) : null}
       </div>
 
-      {error ? (
-        <p className="mt-3 text-sm text-red-600" role="alert">
-          {error}
-        </p>
-      ) : null}
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-6 py-6 md:px-8">
+        <section className="animate-fade-up border border-[var(--border)] bg-panel p-5">
+          <h3 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
+            Customer message
+          </h3>
+          <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-foreground">
+            {ticket.body}
+          </p>
+        </section>
 
-      <section className="mt-6">
-        <h3 className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-          Customer message
-        </h3>
-        <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-zinc-800">
-          {ticket.body}
-        </p>
-      </section>
-
-      <section className="mt-8 border-t border-zinc-200 pt-6">
-        <h3 className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-          AI summary
-        </h3>
-        <p className="mt-2 text-sm leading-relaxed text-zinc-800">
-          {ticket.summary ?? (
-            <span className="text-zinc-400">
-              No summary yet — click Regenerate summary.
+        <section className="animate-fade-up border border-[var(--border)] bg-panel p-5 [animation-delay:60ms]">
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
+              AI summary
+            </h3>
+            <span className="text-[10px] font-medium uppercase tracking-wide text-accent">
+              Copilot
             </span>
-          )}
-        </p>
-      </section>
+          </div>
+          <p className="mt-3 text-sm leading-7 text-foreground">
+            {ticket.summary ?? (
+              <span className="text-muted">
+                No summary yet — click Regenerate summary to draft one with KB
+                context.
+              </span>
+            )}
+          </p>
+        </section>
 
-      <section className="mt-6 border-t border-zinc-200 pt-6">
-        <h3 className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-          Suggested reply
-        </h3>
-        <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-zinc-800">
-          {ticket.suggested_reply ?? (
-            <span className="text-zinc-400">
-              No draft yet — click Regenerate summary.
-            </span>
-          )}
-        </p>
-      </section>
+        <section className="animate-fade-up border border-accent/20 bg-accent-soft/40 p-5 [animation-delay:120ms]">
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
+              Suggested reply
+            </h3>
+            <CopyButton text={ticket.suggested_reply ?? ""} label="Copy" />
+          </div>
+          <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-foreground">
+            {ticket.suggested_reply ?? (
+              <span className="text-muted">
+                No draft yet — regenerate to create a reply grounded in your
+                knowledge base.
+              </span>
+            )}
+          </p>
+        </section>
+      </div>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { createBrowserClient } from "@/lib/supabase/client";
@@ -41,8 +42,10 @@ export function AuthGate({ children }: { children: ReactNode }) {
 
   if (!ready) {
     return (
-      <div className="flex flex-1 items-center justify-center text-sm text-zinc-500">
-        Checking session…
+      <div className="app-shell flex flex-1 items-center justify-center">
+        <div className="border border-[var(--border)] bg-panel px-6 py-4 text-sm text-muted shadow-sm">
+          Checking session…
+        </div>
       </div>
     );
   }

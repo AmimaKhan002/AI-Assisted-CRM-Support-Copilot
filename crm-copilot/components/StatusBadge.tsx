@@ -1,9 +1,11 @@
 import type { TicketStatus } from "@/lib/types/ticket";
 
 const STYLES: Record<TicketStatus, string> = {
-  open: "bg-amber-100 text-amber-900",
-  in_progress: "bg-sky-100 text-sky-900",
-  resolved: "bg-emerald-100 text-emerald-900",
+  open: "bg-[var(--open-bg)] text-[var(--open)] ring-1 ring-[var(--open)]/15",
+  in_progress:
+    "bg-[var(--progress-bg)] text-[var(--progress)] ring-1 ring-[var(--progress)]/15",
+  resolved:
+    "bg-[var(--resolved-bg)] text-[var(--resolved)] ring-1 ring-[var(--resolved)]/15",
 };
 
 const LABELS: Record<TicketStatus, string> = {
@@ -12,10 +14,18 @@ const LABELS: Record<TicketStatus, string> = {
   resolved: "Resolved",
 };
 
-export function StatusBadge({ status }: { status: TicketStatus }) {
+export function StatusBadge({
+  status,
+  compact = false,
+}: {
+  status: TicketStatus;
+  compact?: boolean;
+}) {
   return (
     <span
-      className={`inline-block px-2 py-0.5 text-xs font-medium ${STYLES[status]}`}
+      className={`inline-flex shrink-0 items-center font-medium tracking-wide ${
+        compact ? "px-1.5 py-0.5 text-[10px]" : "px-2 py-0.5 text-[11px]"
+      } ${STYLES[status]}`}
     >
       {LABELS[status]}
     </span>
