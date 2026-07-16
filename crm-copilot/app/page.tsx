@@ -1,23 +1,12 @@
 "use client";
 
-/**
- * Dashboard — load tickets, list + detail
- * -----------------------------------------------------------------------------
- * PURPOSE:
- *   Authenticated agent workspace: browse tickets and run AI summarize.
- *
- * HOW IT CONNECTS:
- *   createBrowserClient() → SELECT tickets
- *   TicketDetail → POST /api/summarize
- *   (Step 14) Realtime subscription will live-update this list
- */
-
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AuthGate } from "@/components/AuthGate";
 import { TicketList } from "@/components/TicketList";
 import { TicketDetail } from "@/components/TicketDetail";
 import { createBrowserClient } from "@/lib/supabase/client";
+import { useTicketsRealtime } from "@/lib/hooks/useTicketsRealtime";
 import type { Ticket } from "@/lib/types/ticket";
 
 export default function HomePage() {
@@ -26,6 +15,8 @@ export default function HomePage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const realtimeStatus = useTicketsRealtime(setTickets);
 
   const loadTickets = useCallback(async () => {
     setLoading(true);
@@ -67,8 +58,7 @@ export default function HomePage() {
     );
   }
 
-  const selected =
-    tickets.find((t) => t.id === selectedId) ?? null;
+  const selected = tickets.find((t) => t.id === selectedId) ?? null;
 
   return (
     <AuthGate>
@@ -80,13 +70,32 @@ export default function HomePage() {
             </p>
             <h1 className="text-lg font-semibold text-zinc-900">Dashboard</h1>
           </div>
-          <button
-            type="button"
-            onClick={() => void signOut()}
-            className="border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-100"
-          >
-            Sign out
-          </button>
+          <div className="flex items-center gap-3">
+            <span
+              className={`text-xs ${
+                realtimeStatus === "subscribed"
+                  ? "text-emerald-700"
+                  : realtimeStatus === "channel_error" ||
+                      realtimeStatus === "timed_out"
+                    ? "text-red-600"
+                    : "text-zinc-500"
+              }`}
+              title={`Realtime: ${realtimeStatus}`}
+            >
+              {realtimeStatus === "subscribed"
+                ? "● Live"
+                : realtimeStatus === "connecting"
+                  ? "○ Connecting…"
+                  : "○ Offline"}
+            </span>
+            <button
+              type="button"
+              onClick={() => void signOut()}
+              className="border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-100"
+            >
+              Sign out
+            </button>
+          </div>
         </header>
 
         <main className="grid min-h-0 flex-1 md:grid-cols-[minmax(280px,360px)_1fr]">
