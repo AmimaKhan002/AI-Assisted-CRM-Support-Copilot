@@ -72,7 +72,7 @@ export default function HomePage() {
   return (
     <AuthGate>
       <div className="app-shell flex min-h-0 flex-1 flex-col">
-        <header className="shrink-0 border-b border-[var(--border)] bg-white/90 px-4 py-3 backdrop-blur-md md:px-6">
+        <header className="shrink-0 border-b border-[var(--border)] bg-panel/90 px-4 py-3 backdrop-blur-md md:px-6">
           <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center bg-accent text-sm font-extrabold text-white">
@@ -104,10 +104,10 @@ export default function HomePage() {
               <span
                 className={`inline-flex items-center gap-1.5 border px-2.5 py-1.5 text-[11px] font-bold ${
                   realtimeStatus === "subscribed"
-                    ? "border-emerald-200 bg-[var(--success-bg)] text-[var(--success)]"
+                    ? "border-emerald-500/30 bg-[var(--success-bg)] text-[var(--success)]"
                     : realtimeStatus === "channel_error" ||
                         realtimeStatus === "timed_out"
-                      ? "border-red-200 bg-[var(--danger-bg)] text-danger"
+                      ? "border-red-500/30 bg-[var(--danger-bg)] text-danger"
                       : "border-[var(--border)] bg-panel-muted text-muted"
                 }`}
                 title={`Realtime: ${realtimeStatus}`}
@@ -138,7 +138,7 @@ export default function HomePage() {
         </header>
 
         <main className="mx-auto grid min-h-0 w-full max-w-[1440px] flex-1 md:grid-cols-[minmax(300px,380px)_1fr] md:gap-4 md:px-4 md:py-4 lg:px-6">
-          <aside className="flex min-h-0 flex-col border border-[var(--border)] bg-white shadow-[var(--shadow-sm)] max-md:border-x-0 max-md:border-t-0">
+          <aside className="flex min-h-0 flex-col border border-[var(--border)] bg-panel shadow-[var(--shadow-sm)] max-md:border-x-0 max-md:border-t-0">
             <div className="flex shrink-0 items-end justify-between border-b border-[var(--border)] px-4 py-3.5">
               <div>
                 <p className="text-sm font-extrabold text-foreground">Queue</p>
@@ -162,7 +162,7 @@ export default function HomePage() {
             </div>
           </aside>
 
-          <section className="min-h-0 overflow-hidden border border-[var(--border)] bg-white shadow-[var(--shadow-sm)] max-md:border-x-0">
+          <section className="min-h-0 overflow-hidden border border-[var(--border)] bg-panel shadow-[var(--shadow-sm)] max-md:border-x-0">
             <TicketDetail ticket={selected} onUpdated={handleUpdated} />
           </section>
         </main>

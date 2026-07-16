@@ -100,9 +100,9 @@ export default function LoginPage() {
 
   return (
     <div className="login-shell flex flex-1 items-center justify-center px-4 py-8 md:py-12">
-      <div className="auth-card animate-fade-up grid w-full max-w-5xl overflow-hidden rounded-sm border border-white/10 bg-white md:grid-cols-[1.1fr_1fr]">
+      <div className="auth-card animate-fade-up grid w-full max-w-5xl overflow-hidden rounded-sm border border-[var(--border)] md:grid-cols-[1.1fr_1fr]">
         {/* Brand panel */}
-        <aside className="relative hidden flex-col justify-between overflow-hidden bg-navy p-10 text-white md:flex lg:p-12">
+        <aside className="relative hidden flex-col justify-between overflow-hidden border-r border-[var(--border)] bg-[var(--navy)] p-10 text-white md:flex lg:p-12">
           <div
             className="pointer-events-none absolute inset-0 opacity-60"
             style={{
@@ -174,13 +174,13 @@ export default function LoginPage() {
           </p>
 
           {/* Tabs */}
-          <div className="mt-7 grid grid-cols-2 border border-[var(--border)] bg-panel-muted p-1">
+          <div className="mt-7 grid grid-cols-2 border border-[var(--border)] bg-[var(--navy)] p-1">
             <button
               type="button"
               onClick={() => switchMode("signin")}
               className={`px-3 py-2.5 text-sm font-semibold transition-colors ${
                 mode === "signin"
-                  ? "bg-white text-foreground shadow-sm"
+                  ? "bg-panel text-foreground"
                   : "text-muted hover:text-foreground"
               }`}
             >
@@ -191,7 +191,7 @@ export default function LoginPage() {
               onClick={() => switchMode("signup")}
               className={`px-3 py-2.5 text-sm font-semibold transition-colors ${
                 mode === "signup"
-                  ? "bg-white text-foreground shadow-sm"
+                  ? "bg-panel text-foreground"
                   : "text-muted hover:text-foreground"
               }`}
             >

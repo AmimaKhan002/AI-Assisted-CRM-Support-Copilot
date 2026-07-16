@@ -108,7 +108,7 @@ export function TicketDetail({
       </div>
 
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-6 py-6 md:px-8">
-        <section className="animate-fade-up border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-sm)]">
+        <section className="animate-fade-up border border-[var(--border)] bg-panel-muted p-5 shadow-[var(--shadow-sm)]">
           <h3 className="text-[11px] font-bold uppercase tracking-[0.16em] text-muted">
             Customer message
           </h3>
@@ -117,7 +117,7 @@ export function TicketDetail({
           </p>
         </section>
 
-        <section className="animate-fade-up border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-sm)] [animation-delay:50ms]">
+        <section className="animate-fade-up border border-[var(--border)] bg-panel-muted p-5 shadow-[var(--shadow-sm)] [animation-delay:50ms]">
           <div className="flex items-center justify-between gap-2">
             <h3 className="text-[11px] font-bold uppercase tracking-[0.16em] text-muted">
               AI summary
