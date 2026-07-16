@@ -3,7 +3,7 @@ import type { SummarizePromptInput } from "@/lib/prompts/summarize";
 export type SummarizeResult = {
   summary: string;
   suggestedReply: string;
-  provider: "grok";
+  provider: "groq";
   raw?: string;
 };
 
